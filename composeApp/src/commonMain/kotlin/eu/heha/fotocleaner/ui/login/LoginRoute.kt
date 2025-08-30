@@ -8,6 +8,9 @@ import io.github.aakira.napier.Napier
 @Composable
 fun LoginRoute() {
     val model = viewModel { LoginViewModel() }
+    LaunchedEffect(model) {
+        model.load()
+    }
     LaunchedEffect(model.state.isSuccess) {
         if (model.state.isSuccess) {
             Napier.e { "successfully logged in, go further" }

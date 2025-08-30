@@ -7,6 +7,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import eu.heha.fotocleaner.FotoCleanerApp
 import io.github.aakira.napier.Napier
+import io.ktor.http.Url
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlin.time.Duration.Companion.seconds
@@ -15,6 +16,19 @@ class LoginViewModel : ViewModel() {
 
     var state by mutableStateOf(LoginState())
         private set
+
+    fun load() {
+        viewModelScope.launch {
+            FotoCleanerApp.remoteRepository.getStoredCredentials()?.let {
+                state = state.copy(
+                    url = it.url,
+                    userName = it.userName,
+                    password = it.password,
+                    error = null
+                )
+            }
+        }
+    }
 
     fun onChangeUrl(newUrl: String) {
         state = state.copy(url = newUrl, error = null)
@@ -39,7 +53,7 @@ class LoginViewModel : ViewModel() {
             val waitJob = launch { delay(2.seconds) }
             try {
                 FotoCleanerApp.remoteRepository.login(
-                    url = state.url,
+                    url = Url(state.url).toString(),
                     userName = state.userName,
                     password = state.password
                 )
