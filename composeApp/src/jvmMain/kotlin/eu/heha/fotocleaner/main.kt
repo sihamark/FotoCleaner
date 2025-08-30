@@ -10,6 +10,7 @@ import java.io.File
 
 fun main() {
     FotoCleanerApp.initialize(
+        antilog = Logging.antilog(),
         filesRoot = filesRoot(),
         remoteRepository = SardineRemoteRepository()
     )

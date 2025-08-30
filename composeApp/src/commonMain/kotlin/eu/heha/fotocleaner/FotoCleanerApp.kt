@@ -2,6 +2,7 @@ package eu.heha.fotocleaner
 
 import androidx.compose.runtime.Composable
 import eu.heha.fotocleaner.model.RemoteRepository
+import io.github.aakira.napier.Antilog
 import io.github.aakira.napier.DebugAntilog
 import io.github.aakira.napier.Napier
 import kotlinx.io.files.Path
@@ -19,8 +20,12 @@ object FotoCleanerApp {
     private fun requireAppValues() =
         appValues ?: error("App not initialized, please call FotoCleanerApp.initialize() first")
 
-    fun initialize(filesRoot: Path, remoteRepository: RemoteRepository) {
-        Napier.base(DebugAntilog())
+    fun initialize(
+        antilog: Antilog = DebugAntilog(),
+        filesRoot: Path,
+        remoteRepository: RemoteRepository
+    ) {
+        Napier.base(antilog)
         appValues = AppValues(
             filesRoot = filesRoot,
             remoteRepository = remoteRepository

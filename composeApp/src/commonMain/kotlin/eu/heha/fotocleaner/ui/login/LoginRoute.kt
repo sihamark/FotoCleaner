@@ -6,7 +6,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import io.github.aakira.napier.Napier
 
 @Composable
-fun LoginRoute() {
+fun LoginRoute(onLoginSuccess: () -> Unit) {
     val model = viewModel { LoginViewModel() }
     LaunchedEffect(model) {
         model.load()
@@ -14,6 +14,7 @@ fun LoginRoute() {
     LaunchedEffect(model.state.isSuccess) {
         if (model.state.isSuccess) {
             Napier.e { "successfully logged in, go further" }
+            onLoginSuccess()
         }
     }
     LoginScreen(

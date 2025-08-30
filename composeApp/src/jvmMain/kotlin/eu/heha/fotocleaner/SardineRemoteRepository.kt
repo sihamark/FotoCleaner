@@ -21,11 +21,42 @@ class SardineRemoteRepository : RemoteRepository {
             if (resources.isEmpty()) {
                 throw Exception("No resources found at the provided URL")
             }
-            resources.forEach { resource ->
-                Napier.i { "resource: ${resource.name} path: ${resource.path} types: ${resource.resourceTypes.joinToString()}" }
-            }
+            Napier.e { "found ${resources.size} resources" }
             credentialsStore.saveCredentials(url, userName, password)
         }
+    }
+
+    override suspend fun listImageFiles(): List<String> = withContext(Dispatchers.IO) {
+        val credentials = credentialsStore.getCredentials()
+            ?: error("No stored credentials found")
+        val sardine = SardineFactory.begin(credentials.userName, credentials.password)
+        val resources = sardine.list(credentials.url.encodeURLPath())
+
+        val contentTypes = resources.map { it.contentType }.distinct()
+        Napier.d { "found content types: $contentTypes" }
+
+        resources.filter { it.contentType.substringBefore("/") in setOf("image", "video") }
+            .filterNot { it.name.startsWith(".pending") || it.name.startsWith(".trashed") }
+            .first().let { resource ->
+                Napier.d {
+                    buildString {
+                        appendLine("name: ${resource.name}")
+                        appendLine("contentType: ${resource.contentType}")
+                        appendLine("path: ${resource.path}")
+                        appendLine("href: ${resource.href}")
+                        appendLine("isDirectory: ${resource.isDirectory}")
+                        appendLine("created: ${resource.creation}")
+                        appendLine("modified: ${resource.modified}")
+                        appendLine("size: ${resource.customProps}")
+                        appendLine("size: ${resource.customPropsNS}")
+                        appendLine("size: ${resource.resourceTypes}")
+                        appendLine("size: ${resource.statusCode}")
+                        appendLine("size: ${resource.supportedReports}")
+                    }
+                }
+            }
+
+        return@withContext listOf()
     }
 
     override suspend fun getStoredCredentials(): CredentialsStore.Credentials? =

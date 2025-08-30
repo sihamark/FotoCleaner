@@ -57,7 +57,7 @@ class LoginViewModel : ViewModel() {
                     userName = state.userName,
                     password = state.password
                 )
-                state = state.copy(isLoading = false, error = null)
+                state = state.copy(isLoading = false, isSuccess = true, error = null)
                 Napier.e { "successfully logged in" }
             } catch (e: Exception) {
                 Napier.e(e) { "error logging in" }
