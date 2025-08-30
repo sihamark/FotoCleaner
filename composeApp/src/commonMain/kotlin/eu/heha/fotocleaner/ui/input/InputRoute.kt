@@ -1,4 +1,4 @@
-package eu.heha.fotocleaner.ui.login
+package eu.heha.fotocleaner.ui.input
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -6,8 +6,8 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import io.github.aakira.napier.Napier
 
 @Composable
-fun LoginRoute(onLoginSuccess: () -> Unit) {
-    val model = viewModel { LoginViewModel() }
+fun InputRoute(onLoginSuccess: () -> Unit) {
+    val model = viewModel { InputViewModel() }
     LaunchedEffect(model) {
         model.load()
     }
@@ -17,13 +17,13 @@ fun LoginRoute(onLoginSuccess: () -> Unit) {
             onLoginSuccess()
         }
     }
-    LoginScreen(
+    InputScreen(
         state = model.state,
-        actions = LoginActions(
+        actions = InputActions(
             onChangeUrl = model::onChangeUrl,
             onChangeUserName = model::onChangeUserName,
             onChangePassword = model::onChangePassword,
-            onClickLogin = model::login
+            onClickUseInputs = model::useInputs
         )
     )
 }

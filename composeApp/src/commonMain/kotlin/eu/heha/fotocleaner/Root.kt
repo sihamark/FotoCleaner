@@ -7,7 +7,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import eu.heha.fotocleaner.ui.login.LoginRoute
+import eu.heha.fotocleaner.ui.input.InputRoute
 import eu.heha.fotocleaner.ui.overview.OverviewRoute
 import org.jetbrains.compose.ui.tooling.preview.Preview
 
@@ -18,7 +18,7 @@ fun Root() {
         var current by remember { mutableStateOf(NavigationDestination.Login) }
         AnimatedContent(current) {
             when (it) {
-                NavigationDestination.Login -> LoginRoute(
+                NavigationDestination.Login -> InputRoute(
                     onLoginSuccess = { current = NavigationDestination.Overview }
                 )
 

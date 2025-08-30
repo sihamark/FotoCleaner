@@ -1,4 +1,4 @@
-package eu.heha.fotocleaner.ui.login
+package eu.heha.fotocleaner.ui.input
 
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -8,13 +8,14 @@ import androidx.lifecycle.viewModelScope
 import eu.heha.fotocleaner.FotoCleanerApp.remoteRepository
 import io.github.aakira.napier.Napier
 import io.ktor.http.Url
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlin.time.Duration.Companion.seconds
 
-class LoginViewModel : ViewModel() {
+class InputViewModel : ViewModel() {
 
-    var state by mutableStateOf(LoginState())
+    var state by mutableStateOf(InputState())
         private set
 
     fun load() {
@@ -42,17 +43,17 @@ class LoginViewModel : ViewModel() {
         state = state.copy(password = newPassword, error = null)
     }
 
-    fun login() {
+    fun useInputs() {
         if (state.url.isBlank() || state.userName.isBlank() || state.password.isBlank()) {
             state = state.copy(error = "All fields are required")
             return
         }
         state = state.copy(isLoading = true, error = null)
 
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.Default) {
             val waitJob = launch { delay(2.seconds) }
             try {
-                remoteRepository.login(
+                remoteRepository.loadFiles(
                     url = Url(state.url).toString(),
                     userName = state.userName,
                     password = state.password
