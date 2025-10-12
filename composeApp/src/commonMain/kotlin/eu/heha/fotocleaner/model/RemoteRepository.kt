@@ -1,4 +1,9 @@
+@file:OptIn(ExperimentalTime::class)
+
 package eu.heha.fotocleaner.model
+
+import kotlin.time.ExperimentalTime
+import kotlin.time.Instant
 
 interface RemoteRepository {
 
@@ -6,6 +11,16 @@ interface RemoteRepository {
 
     suspend fun getStoredCredentials(): CredentialsStore.Credentials?
 
-    suspend fun listImageFiles(): List<String>
+    suspend fun listMediaFiles(): AnalysisResult
 
+    data class AnalysisResult(
+        val directory: String,
+        val mediaFiles: List<MediaFile>,
+    )
+
+    data class MediaFile(
+        val name: String,
+        val path: String,
+        val date: Instant
+    )
 }

@@ -1,3 +1,5 @@
+@file:OptIn(ExperimentalTime::class)
+
 package eu.heha.fotocleaner.ui.overview
 
 import androidx.compose.foundation.layout.Column
@@ -5,8 +7,12 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.widthIn
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Refresh
+import androidx.compose.material3.Card
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
@@ -16,8 +22,13 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import eu.heha.fotocleaner.model.RemoteRepository
 import eu.heha.fotocleaner.ui.ProgressDialog
 import org.jetbrains.compose.ui.tooling.preview.Preview
+import kotlin.time.Clock
+import kotlin.time.ExperimentalTime
+
+private val maxWidth = 400.dp
 
 @Composable
 fun OverviewScreen(
@@ -25,38 +36,80 @@ fun OverviewScreen(
     actions: OverviewActions = OverviewActions()
 ) {
     Scaffold { innerPadding ->
-        Column(
+        LazyColumn(
             horizontalAlignment = Alignment.CenterHorizontally,
             modifier = Modifier
                 .padding(innerPadding)
                 .fillMaxSize()
         ) {
+            item { Spacer(Modifier.padding(16.dp)) }
+
             if (!state.isLoading) {
                 if (state.error != null) {
-                    ErrorDisplay(
-                        error = state.error,
-                        onClickRetryLoad = actions.onClickRetryLoad
-                    )
+                    item {
+                        ErrorDisplay(
+                            error = state.error,
+                            onClickRetryLoad = actions.onClickRetryLoad,
+                            modifier = Modifier.widthIn(max = maxWidth)
+                        )
+                    }
                 } else {
-                    Text(
-                        "You have ${state.amountOfImageFile} image files.",
-                        style = MaterialTheme.typography.bodyLarge
-                    )
+                    item {
+                        Text(
+                            "You have ${state.mediaFiles.size} image files.",
+                            style = MaterialTheme.typography.bodyLarge,
+                            modifier = Modifier.widthIn(max = maxWidth)
+                        )
+                    }
+                    items(state.mediaFiles) { mediaFile ->
+                        MediaFileDisplay(
+                            mediaFile,
+                            modifier = Modifier.widthIn(max = maxWidth)
+                        )
+                    }
                 }
             }
         }
     }
     if (state.isLoading) {
-        ProgressDialog("Loading Files...")
+        ProgressDialog("Analysing media files...")
+    }
+}
+
+@Composable
+fun MediaFileDisplay(mediaFile: RemoteRepository.MediaFile, modifier: Modifier = Modifier) {
+    Card(modifier.padding(8.dp)) {
+        Column(
+            horizontalAlignment = Alignment.Start,
+            modifier = Modifier
+                .padding(8.dp)
+        ) {
+            Text(
+                text = mediaFile.name,
+                style = MaterialTheme.typography.bodyLarge
+            )
+            Text(
+                text = mediaFile.path,
+                style = MaterialTheme.typography.bodySmall
+            )
+            Text(
+                text = "Date: ${mediaFile.date}",
+                style = MaterialTheme.typography.bodySmall
+            )
+        }
     }
 }
 
 @Composable
 private fun ErrorDisplay(
     error: String,
-    onClickRetryLoad: () -> Unit
+    onClickRetryLoad: () -> Unit,
+    modifier: Modifier = Modifier
 ) {
-    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally,
+        modifier = modifier
+    ) {
         Text(
             "Error: $error",
             style = MaterialTheme.typography.bodyLarge
@@ -73,9 +126,9 @@ private fun ErrorDisplay(
 }
 
 data class OverviewState(
-    val amountOfImageFile: Int = 0,
     val isLoading: Boolean = false,
-    val error: String? = null
+    val error: String? = null,
+    val mediaFiles: List<RemoteRepository.MediaFile> = listOf()
 )
 
 class OverviewActions(
@@ -86,6 +139,21 @@ class OverviewActions(
 @Composable
 fun OverviewPreview() {
     MaterialTheme {
-        OverviewScreen(state = OverviewState(amountOfImageFile = 1234))
+        OverviewScreen(
+            state = OverviewState(
+                mediaFiles = listOf(
+                    RemoteRepository.MediaFile(
+                        name = "image1.jpg",
+                        path = "/path/to/image1.jpg",
+                        date = Clock.System.now()
+                    ),
+                    RemoteRepository.MediaFile(
+                        name = "image2.jpg",
+                        path = "/path/to/image2.jpg",
+                        date = Clock.System.now()
+                    )
+                )
+            )
+        )
     }
 }

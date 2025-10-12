@@ -6,8 +6,9 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.AlertDialogDefaults
 import androidx.compose.material3.BasicAlertDialog
-import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.CircularWavyProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -31,6 +32,7 @@ fun ProgressDialog(message: String, onDismissRequest: () -> Unit = {}) {
     }
 }
 
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun Progress(message: String, modifier: Modifier = Modifier) {
     Column(
@@ -43,6 +45,6 @@ fun Progress(message: String, modifier: Modifier = Modifier) {
             textAlign = TextAlign.Center
         )
         Spacer(Modifier.height(16.dp))
-        CircularProgressIndicator()
+        CircularWavyProgressIndicator()
     }
 }

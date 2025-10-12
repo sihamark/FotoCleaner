@@ -19,7 +19,8 @@ class OverviewViewModel : ViewModel() {
         viewModelScope.launch(Dispatchers.Default) {
             state = state.copy(isLoading = true)
             try {
-                remoteRepository.listImageFiles()
+                val result = remoteRepository.listMediaFiles()
+                state = state.copy(mediaFiles = result.mediaFiles, isLoading = false)
             } catch (e: Exception) {
                 Napier.e(e) { "error while loading stuff" }
                 state = state.copy(error = e.message ?: "Unknown error", isLoading = false)
