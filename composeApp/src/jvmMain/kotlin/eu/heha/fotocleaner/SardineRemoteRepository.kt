@@ -14,8 +14,11 @@ import io.ktor.http.URLBuilder
 import io.ktor.http.appendPathSegments
 import io.ktor.http.encodeURLPath
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.withContext
 import java.time.ZoneOffset
+import kotlin.time.Clock
 import kotlin.time.ExperimentalTime
 import kotlin.time.toKotlinInstant
 
@@ -41,27 +44,44 @@ class SardineRemoteRepository : RemoteRepository {
         }
     }
 
-    override suspend fun listMediaFiles(): AnalysisResult = withContext(Dispatchers.IO) {
+    override suspend fun listMediaFiles(): Flow<AnalysisResult> = flow {
         val url = credentialsStore.getCredentials()?.url
             ?: error("no credentials save, call loadImageFiles")
         val contentTypes = loadedResources.map { it.contentType }.distinct()
         Napier.d { "found content types: $contentTypes" }
+
+        val startTime = Clock.System.now()
 
         val mediaFiles = loadedResources
             .sortedByDescending { it.modified }
             .filter {
                 (it.isImageFile() || it.isVideoFile()) && !it.isPendingFile() && !it.isTrashedFile()
             }.map { resource ->
+                val dateTime = resource.modified.toInstant().atOffset(ZoneOffset.UTC)
+                val other = URLBuilder(url)
+                    .appendPathSegments(
+                        dateTime.year.toString(),
+                        "%02d".format(dateTime.monthValue)
+                    )
+                    .buildString()
                 RemoteRepository.MediaFile(
                     name = resource.name,
                     path = resource.path,
-                    date = resource.modified.toInstant().toKotlinInstant()
+                    date = resource.modified.toInstant().toKotlinInstant(),
+                    subPath = other,
                 )
             }
 
-        return@withContext AnalysisResult(
-            directory = url,
-            mediaFiles = mediaFiles
+        emit(
+            AnalysisResult(
+                directory = url,
+                progress = RemoteRepository.Progress(
+                    current = 1,
+                    total = loadedResources.size,
+                    startTime = startTime
+                ),
+                mediaFiles = mediaFiles
+            )
         )
     }
 

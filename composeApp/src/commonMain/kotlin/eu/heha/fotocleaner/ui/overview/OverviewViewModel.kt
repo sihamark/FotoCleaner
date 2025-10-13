@@ -20,7 +20,7 @@ class OverviewViewModel : ViewModel() {
             state = state.copy(isLoading = true)
             try {
                 val result = remoteRepository.listMediaFiles()
-                state = state.copy(mediaFiles = result.mediaFiles, isLoading = false)
+                state = state.copy(isLoading = false)
             } catch (e: Exception) {
                 Napier.e(e) { "error while loading stuff" }
                 state = state.copy(error = e.message ?: "Unknown error", isLoading = false)

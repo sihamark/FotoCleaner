@@ -26,6 +26,7 @@ import eu.heha.fotocleaner.model.RemoteRepository
 import eu.heha.fotocleaner.ui.ProgressDialog
 import org.jetbrains.compose.ui.tooling.preview.Preview
 import kotlin.time.Clock
+import kotlin.time.Duration.Companion.minutes
 import kotlin.time.ExperimentalTime
 
 private val maxWidth = 400.dp
@@ -138,20 +139,21 @@ class OverviewActions(
 @Preview
 @Composable
 fun OverviewPreview() {
+    fun debugMediaFile(name: String) = RemoteRepository.MediaFile(
+        name = name,
+        path = "/path/to/$name",
+        date = Clock.System.now().minus((1..1000).random().minutes),
+        subPath = "",
+        doesSubPathExist = true
+    )
     MaterialTheme {
         OverviewScreen(
             state = OverviewState(
                 mediaFiles = listOf(
-                    RemoteRepository.MediaFile(
-                        name = "image1.jpg",
-                        path = "/path/to/image1.jpg",
-                        date = Clock.System.now()
-                    ),
-                    RemoteRepository.MediaFile(
-                        name = "image2.jpg",
-                        path = "/path/to/image2.jpg",
-                        date = Clock.System.now()
-                    )
+                    debugMediaFile("1.jpg"),
+                    debugMediaFile("2.jpg"),
+                    debugMediaFile("3.jpg"),
+                    debugMediaFile("4.jpg")
                 )
             )
         )
